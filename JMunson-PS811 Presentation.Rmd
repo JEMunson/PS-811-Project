@@ -1,0 +1,251 @@
+---
+title: "COVID-19 & Adoption of Virtual Education"
+author: "Jessie Munson"
+date: "10 December 2020 | PS811 | UW-Madison"
+output:
+  beamer_presentation:
+    theme: "CambridgeUS"
+    colortheme: "beaver"
+    fonttheme: "structurebold"
+subtitle: Assesing Urban and Rural Concerns
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+setwd("~/R/PO Project")
+
+```
+
+
+## Background & Research Question
+
+- How to we convince people to shift to online classes?
+
+
+- Are barriers to online schooling the same in rural and urban communities?
+
+
+- Bartels (2005), Cramer and Toff (2017)
+
+
+
+\newpage
+## Hypotheses 
+
+- Independent variable: individuals' mentioning of schools in their tweets
+
+
+- Dependent variable: the issues raised by either rural or urban residents as a barrier to online educational provision
+
+  - Rural: broadband
+  - Urban: parents working from home
+
+Hypotheses:
+
+- $H_1$ = Rural and Urban concerns about working from home differ.
+- $H_{1a}$ = Rural concerns will be related to broadband access
+- $H_{1b}$ = Urban concerns will be related to parents'
+
+
+\newpage
+## Data
+
+- Tweets collected by MIT Media Lab
+
+
+\newpage
+## Method
+
+- Tweets
+  - Descriptive Stats
+  - Red State vs Blue State
+
+
+\newpage
+## Preliminary Results
+```{r, results=FALSE, warning=FALSE, echo=FALSE, message=FALSE, warning = FALSE}
+setwd("~/R/PO Project")
+
+## TWEETS WORD CLOUD
+
+# load packages
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
+library("tidyverse")
+
+
+# load text file with body text from tweets
+text <- readLines("~/R/PO Project/citytwt.txt")
+
+# convert data to corpus
+tweetstext <- Corpus(VectorSource(text))
+
+## clean up data
+
+# convert all text to lower case
+tweetstext <- tm_map(tweetstext, content_transformer(tolower))
+
+# remove numbers
+tweetstext <- tm_map(tweetstext, removeNumbers)
+
+# remove english common stopwords
+tweetstext <- tm_map(tweetstext, removeWords, stopwords("english"))
+
+# remove custom stopwords
+tweetstext <- tm_map(tweetstext, removeWords, c("like", "amp", "covid")) 
+
+# remove punctuation
+tweetstext <- tm_map(tweetstext, removePunctuation)
+
+# eliminate extra white spaces
+tweetstext <- tm_map(tweetstext, stripWhitespace)
+
+#remove weird characters
+tweetstext <- tm_map(tweetstext, removeWords, c("ã£æ’â¼", "covidã£æ’â¼", "itã¢â‚¬â„¢s","iã¢â‚¬â„¢m"))
+
+# build term-document matrix
+dtm <- TermDocumentMatrix(tweetstext)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+# generate word cloud
+set.seed(1234)
+tweetwc <- wordcloud(words = d$word, scale=c(5,0.6),freq = d$freq, min.freq = 1,
+                     max.words=200, random.order=FALSE, rot.per=0.35, 
+                     colors=brewer.pal(5, "Spectral"))
+
+print(tweetwc)
+
+# thanks & credit on much of this code to STHDA website tutorial on word clouds: http://www.sthda.com/english/wiki/text-mining-and-word-cloud-fundamentals-in-r-5-simple-steps-you-should-know
+```
+
+
+\newpage
+## Preliminary Results
+```{r, results=FALSE, warning=FALSE, echo=FALSE, message=FALSE, warning = FALSE}
+# load text file with body text from tweets
+text <- readLines("~/R/PO Project/rurtwt.txt")
+
+# convert data to corpus
+tweetstext <- Corpus(VectorSource(text))
+
+## clean up data
+
+# convert all text to lower case
+tweetstext <- tm_map(tweetstext, content_transformer(tolower))
+
+# remove numbers
+tweetstext <- tm_map(tweetstext, removeNumbers)
+
+# remove english common stopwords
+tweetstext <- tm_map(tweetstext, removeWords, stopwords("english"))
+
+# remove custom stopwords
+tweetstext <- tm_map(tweetstext, removeWords, c("like", "amp", "covid", "coronavirus")) 
+
+# remove punctuation
+tweetstext <- tm_map(tweetstext, removePunctuation)
+
+# eliminate extra white spaces
+tweetstext <- tm_map(tweetstext, stripWhitespace)
+
+#remove weird characters
+tweetstext <- tm_map(tweetstext, removeWords, c("ã£æ’â¼", "covidã£æ’â¼", "itã¢â‚¬â„¢s","iã¢â‚¬â„¢m"))
+
+# build term-document matrix
+dtm <- TermDocumentMatrix(tweetstext)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+# generate word cloud
+set.seed(1234)
+tweetwc2 <- wordcloud(words = d$word, scale=c(5,0.6),freq = d$freq, min.freq = 1,
+                     max.words=200, random.order=FALSE, rot.per=0.35, 
+                     colors=brewer.pal(6, "Spectral"))
+
+print(tweetwc2)
+
+```
+
+
+
+
+
+
+\newpage
+## Preliminary Results
+```{r, results=FALSE, warning=FALSE, echo=FALSE, message=FALSE, warning = FALSE}
+# load text file with body text from tweets
+text <- readLines("~/R/PO Project/schooltwt.txt")
+
+# convert data to corpus
+tweetstext <- Corpus(VectorSource(text))
+
+## clean up data
+
+# convert all text to lower case
+tweetstext <- tm_map(tweetstext, content_transformer(tolower))
+
+# remove numbers
+tweetstext <- tm_map(tweetstext, removeNumbers)
+
+# remove english common stopwords
+tweetstext <- tm_map(tweetstext, removeWords, stopwords("english"))
+
+# remove custom stopwords
+tweetstext <- tm_map(tweetstext, removeWords, c("like", "amp", "covid", "coronavirus", "school", "schools")) 
+
+# remove punctuation
+tweetstext <- tm_map(tweetstext, removePunctuation)
+
+# eliminate extra white spaces
+tweetstext <- tm_map(tweetstext, stripWhitespace)
+
+#remove weird characters
+tweetstext <- tm_map(tweetstext, removeWords, c("ã£æ’â¼", "covidã£æ’â¼", "itã¢â‚¬â„¢s","iã¢â‚¬â„¢m"))
+
+# build term-document matrix
+dtm <- TermDocumentMatrix(tweetstext)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+# generate word cloud
+set.seed(1234)
+tweetwc3 <- wordcloud(words = d$word, scale=c(5,0.6),freq = d$freq, min.freq = 1,
+                     max.words=200, random.order=FALSE, rot.per=0.35, 
+                     colors=brewer.pal(5, "Spectral"))
+
+print(tweetwc3)
+
+```
+
+
+
+
+
+\newpage
+## Discussion & Conclusion
+
+Top Words:
+
+- Work 
+
+- Trump
+
+- Heroes, Parents, teachers
+
+Revisions:
+
+- Red vs Blue States
+- Red States more difficult - less twitter and more tweeting from their urban centers
+
+
