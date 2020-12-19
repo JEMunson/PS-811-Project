@@ -1,0 +1,169 @@
+---
+title             : "Understanding Education During the COVID-19 Pandemic"
+shorttitle        : "Part II: Twitter Analysis"
+author: 
+  - name          : "Jessie Munson"
+  - email         : "jemunson@wisc.edu"
+  - institution: 'University of Wisconsin - Madison'
+    
+output:
+  pdf_document: default
+  papaja::apa6_pdf: default
+
+keywords: keywords
+wordcount: X
+floatsintext: no
+figurelist: no
+tablelist: no
+footnotelist: no
+linenumbers: yes
+mask: no
+draft: no
+documentclass: apa6
+classoption: man
+affiliation:
+ - id: '1'
+   institution: 'University of Wisconsin - Madison'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+In this paper I am adding to the analysis from my project for PS 904: Understanding Public Thought. During that project I used data from conversations collected through the MIT Media Lab's Local Voices Network to identify some of the most prominent reoccurring issues surrounding remote education during the COVID-19 pandemic. Additionally, I highlight themes which present even greater challenges in rural communities. Though the original paper takes an interpretivist approach to characterizing these challenges, this analysis seeks to asses them from a quantitative perspective. 
+
+I had hoped this paper would demonstrate how analyzing tweets from urban centers and rural places would improve that analysis. What I found in the process of analyzing tweets about the COVID-19 pandemic was that the data lacked much differentiation in how people are talking about education online.
+
+# Data
+The data in this analysis comes from Twitter and is composed of tweets collected between March 1st, 2020 and July 15th, 2020. To try and get a rudimentary picture of what topics were coming up in relation to education during this period of time I first split the data by location. To get tweets representing urban and non-urban attitudes I sorted user's locations into those from major metropolitan areas and those from outside those areas. Urban areas include state capitals as well as other large cities. To get a sample of non-urban tweets I used locations outside of major cities. I was unable to differentiate between rural and suburban areas due to the low number of tweets available from locations outside major cities. I assembled samples of 5000 COVID-19 related tweets for each group and isolated those that mentioned "education", "school", "student(s)", and "teacher(s)". From there I made a word cloud to get a big picture view of these conversations.
+
+# Results
+Word cloud for tweets collected from Metropolitan communities.
+```{r, results=FALSE, warning=FALSE, echo=FALSE, message=FALSE, warning = FALSE}
+setwd("~/R/PS811-Project")
+
+# TWEETS WORD CLOUD
+
+#load packages
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
+library("tidyverse")
+
+
+#load text file with body text from tweets
+text <- readLines("~/R/PS811-Project/BCETweets.txt")
+
+#convert data to corpus
+tweetstext <- Corpus(VectorSource(text))
+
+# clean up data
+
+#convert all text to lower case
+tweetstext <- tm_map(tweetstext, content_transformer(tolower))
+
+# remove numbers
+tweetstext <- tm_map(tweetstext, removeNumbers)
+
+#remove english common stopwords
+tweetstext <- tm_map(tweetstext, removeWords, stopwords("english"))
+
+#remove custom stopwords
+tweetstext <- tm_map(tweetstext, removeWords, c("school", "student", "covid", "coronavirus", "students", "schools"))
+
+#remove punctuation
+tweetstext <- tm_map(tweetstext, removePunctuation)
+
+#eliminate extra white spaces
+tweetstext <- tm_map(tweetstext, stripWhitespace)
+
+#remove weird characters
+tweetstext <- tm_map(tweetstext, removeWords, c("ã£æ’â¼", "covidã£æ’â¼", "itã¢â‚¬â„¢s","iã¢â‚¬â„¢m"))
+
+#build term-document matrix
+dtm <- TermDocumentMatrix(tweetstext)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+#generate word cloud
+set.seed(1234)
+tweetwc <- wordcloud(words = d$word, scale=c(5,0.6),freq = d$freq, min.freq = 1,
+                     max.words=200, random.order=FALSE, rot.per=0.35, 
+                     colors=brewer.pal(5, "Spectral"))
+
+print(tweetwc)
+
+
+```
+\newpage
+Word cloud for tweets collected from non-metropolitan communities.
+
+```{r, results=FALSE, warning=FALSE, echo=FALSE, message=FALSE, warning = FALSE}
+#load text file with body text from tweets
+text <- readLines("~/R/PS811-Project/NBCETweets.txt")
+
+#convert data to corpus
+tweetstext <- Corpus(VectorSource(text))
+
+#clean up data
+
+#convert all text to lower case
+tweetstext <- tm_map(tweetstext, content_transformer(tolower))
+
+#remove numbers
+tweetstext <- tm_map(tweetstext, removeNumbers)
+
+#remove english common stopwords
+tweetstext <- tm_map(tweetstext, removeWords, stopwords("english"))
+
+#remove custom stopwords
+tweetstext <- tm_map(tweetstext, removeWords, c("school", "student", "covid", "coronavirus", "students", "schools")) 
+
+#remove punctuation
+tweetstext <- tm_map(tweetstext, removePunctuation)
+
+#eliminate extra white spaces
+tweetstext <- tm_map(tweetstext, stripWhitespace)
+
+#remove weird characters
+tweetstext <- tm_map(tweetstext, removeWords, c("ã£æ’â¼", "covidã£æ’â¼", "itã¢â‚¬â„¢s","iã¢â‚¬â„¢m"))
+
+#build term-document matrix
+dtm <- TermDocumentMatrix(tweetstext)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+d <- data.frame(word = names(v),freq=v)
+head(d, 10)
+
+# generate word cloud
+set.seed(1234)
+tweetwc2 <- wordcloud(words = d$word, scale=c(5,0.6),freq = d$freq, min.freq = 1,
+                     max.words=200, random.order=FALSE, rot.per=0.35, 
+                     colors=brewer.pal(6, "Spectral"))
+
+print(tweetwc2)
+
+```
+
+In both word clouds educational terminology like "education", "learning", and "teachers" are occurring most frequently. In the non-urban tweet word cloud less political terminology appears. Words like "Trump", "reopening", and "district" only appear in the metropolitan tweets.
+
+# Discussion
+
+Overall I found few substantive differences between the word clouds. There are several reasons I believe this could be possible. The first is selection bias. To get a large enough sample of tweets from which to sort out education related tweets I had to add a lot of different locations with small numbers of tweets to get a big enough pool. This may mean that some more urban places might have gotten in with my non-urban data sample. It was informative, however, as it showed that tweets from one major city often outnumbered tweets from every location in that state not within that major city. Non-metropolitan areas had significantly fewer tweets than their big city counterparts. This likely means that in the using of twitter data I biased my sample toward urban populations.
+
+Next, I am less familiar with the methodology behind how the original body of COVID-19 related tweets was assembled. There is a possibility that tweets about education may not have met the threshold for being considered a Covid tweet. If tweets referencing remote education do not explicitly mention COVID-19 itself they may have been left out of the sample. In each group, tweets representing educational topics represented only a small proportion of total tweets.
+
+Finally, I believe this data is incomplete. In my analysis of the LVN data I found that many teachers lamented how last minute planning for the fall semester on behalf of school administrators impacted their ability to properly prepare for the new school year. Since the tweets in this analysis are from between March and July of 2020, they may not capture the prime planning period for schools determining how they would resume instruction in September of 2020. Had the tweets covered a longer length of time they may have captured more responses in reaction to planning decisions made as part of that process.
+
+# Conclusion
+
+Although the LVN conversations I used in my final paper provided numerous insights about the challenges of remote learning during the COVID-19 pandemic, I found tweets were less illuminating. Though tweets have been shown this semester to be useful on other topics, subdividing them by user location and specialized topic appears in this case to be less fruitful.
+
+
+
+
+
